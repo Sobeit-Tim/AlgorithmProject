@@ -1,8 +1,8 @@
 #ifndef PATH_FINDER_H_INCLUDED
 #define PATH_FINDER_H_INCLUDED
 #include <math.h>
-#include <limits.h>
 #include "Path.h"
+#define Large 100000
 #define V 26
 
 
@@ -15,8 +15,8 @@ public:
 	int dep_time[3];
 	int arr_time[3];
 	int shor_path[100];
-	int dist[26];
-	int sptSet[V]; // ¹æ¹® Çß´ÂÁö Ã¼Å© ÇÏ´Â intÇü ¹è¿­
+	int dist[27];
+	int sptSet[V]; // ë°©ë¬¸ í–ˆëŠ”ì§€ ì²´í¬ í•˜ëŠ” intí˜• ë°°ì—´
 
 	Path_finder(int t[][26][26][2], int m[][26])
     {
@@ -40,15 +40,15 @@ public:
 	    memset(dep_time,0,sizeof(dep_time));
 	    memset(arr_time,0,sizeof(arr_time));
 	    memset(shor_path,-1,sizeof(shor_path));
-	
+
 	    Path *p = new Path;
 		memset(p->flight_path,-1,sizeof(p->flight_path));
 	    p->flight_time = -1;
 	    p->source = src;
 	    p->dest = dst;
-	
+
 	    int path_ok = ShortestPath(map, src, dst, date);
-	    if(path_ok == 1){
+	    if(((date+(int)dist[dst]/1440) <32 )&&path_ok == 1){
 		    p->dep_time[0] = date;
 		    p->dep_time[1] = timetable[date][src][flight_path[1]][0];
 		    p->dep_time[2] = timetable[date][src][flight_path[1]][1];
@@ -72,6 +72,18 @@ public:
 		    printf("flight_time : %d\n",p->flight_time);
 		    printf("departure time: %dd, %dh%dm\n", p->dep_time[0],p->dep_time[1],p->dep_time[2]);
 		    printf("arrival time : %dd, %dh%dm\n", p->arr_time[0],p->arr_time[1],p->arr_time[2]);
+		    if(p->arr_time[0] < p->dep_time[0])
+                printf("???");
+            else{
+                if( (p->arr_time[0] == p->dep_time[0])&& (p->arr_time[1] < p->dep_time[1]))
+                    printf("????");
+                else
+                {
+                    if((p->arr_time[0] == p->dep_time[0]) && (p->arr_time[1] == p->dep_time[1]) &&(p->arr_time[2] < p->dep_time[2]))
+                        printf("?????");
+                }
+                }
+
 	    }else{
 			printf("There is no path between %c and %c\n", src+'A', dst+'A');
 		}
@@ -80,9 +92,9 @@ public:
 
 	int minDistance(int dist[V], int sptSet[V])
 	{
-	    int min = INT_MAX;
+	    int min = Large;
 	    int min_index=-1;
-	
+
 	    for (int v = 0; v < V; v++)
 	    {
 	        if (!sptSet[v] && min > dist[v])
@@ -91,7 +103,7 @@ public:
 	            min = dist[v];
 	        }
 	    }
-	
+
 	    return min_index;
 	}
 	void SearchPath(int from,int to){
@@ -112,36 +124,36 @@ public:
 
 	void dijkstra(int graph[V][V], int src, int date)
 	{
-	
-	
+
+
 	    for (int i = 0; i<V; i++)
-	        dist[i] = INT_MAX, sptSet[i] = 0;
-	
-	    // ÃÊ±â Á¶°Ç ¼³Á¤.
+	        dist[i] = Large, sptSet[i] = 0;
+
+	    // ì´ˆê¸° ì¡°ê±´ ì„¤ì •.
 	    dist[src] = 0;
-	
-	    // V-1¹ø ·çÇÁ¸¦ ¼öÇàÇÑ´Ù´Â °ÍÀº Ã¹ src³ëµå¸¦ Á¦¿ÜÇÑ ¸ğµç ³ëµåµé¿¡ Á¢±ÙÀ» ÇØ °è»êÀ» ÇÑ´Ù´Â ÀÇ¹Ì.
+
+	    // V-1ë²ˆ ë£¨í”„ë¥¼ ìˆ˜í–‰í•œë‹¤ëŠ” ê²ƒì€ ì²« srcë…¸ë“œë¥¼ ì œì™¸í•œ ëª¨ë“  ë…¸ë“œë“¤ì— ì ‘ê·¼ì„ í•´ ê³„ì‚°ì„ í•œë‹¤ëŠ” ì˜ë¯¸.
 	    for (int count = 0; count < V - 1; count++)
 	    {
-	        // ÃÖ´Ü°Å¸® Á¤º¸¸¦ ¾Ë°í ÀÖ´Â ³ëµåµé Áß °¡Àå °Å¸®°¡ ÂªÀº ³ëµåÀÇ ÀÎµ¦½º¸¦ °¡Á®¿Â´Ù.
+	        // ìµœë‹¨ê±°ë¦¬ ì •ë³´ë¥¼ ì•Œê³  ìˆëŠ” ë…¸ë“œë“¤ ì¤‘ ê°€ì¥ ê±°ë¦¬ê°€ ì§§ì€ ë…¸ë“œì˜ ì¸ë±ìŠ¤ë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 	        int u = minDistance(dist, sptSet);
 	        if(u != -1){
-	
-		        // ±×·¡ÇÁ »óÀÇ ¸ğµç ³ëµåµéÀ» Å½»öÇÏ¸ç u ³ëµåÀÇ ÁÖº¯ Á¤º¸¸¦ °»½ÅÇÑ´Ù.
+
+		        // ê·¸ë˜í”„ ìƒì˜ ëª¨ë“  ë…¸ë“œë“¤ì„ íƒìƒ‰í•˜ë©° u ë…¸ë“œì˜ ì£¼ë³€ ì •ë³´ë¥¼ ê°±ì‹ í•œë‹¤.
 		        for (int v = 0; v < V; v++)
 		        {
-		            // 1. ¾ÆÁ÷ Ã³¸®°¡ µÇÁö ¾ÊÀº ³ëµåÀÌ¾î¾ß ÇÏ¸ç (¹«ÇÑ·çÇÁ ¹æÁö)
-		            // 2. u-v °£¿¡ edge°¡ Á¸ÀçÇÏ°í
-		            // 3. srcºÎÅÍ u±îÁöÀÇ °æ·Î°¡ Á¸ÀçÇÏ°í
-		            // 4. ±âÁ¸ÀÇ v³ëµå±îÁöÀÇ ÃÖ´Ü°Å¸® °ªº¸´Ù »õ·Î °è»êµÇ´Â ÃÖ´Ü°Å¸®°¡ ´õ ÂªÀ» °æ¿ì
-		            if(dist[u] != INT_MAX && graph[u][v]!=0){
+		            // 1. ì•„ì§ ì²˜ë¦¬ê°€ ë˜ì§€ ì•Šì€ ë…¸ë“œì´ì–´ì•¼ í•˜ë©° (ë¬´í•œë£¨í”„ ë°©ì§€)
+		            // 2. u-v ê°„ì— edgeê°€ ì¡´ì¬í•˜ê³ 
+		            // 3. srcë¶€í„° uê¹Œì§€ì˜ ê²½ë¡œê°€ ì¡´ì¬í•˜ê³ 
+		            // 4. ê¸°ì¡´ì˜ vë…¸ë“œê¹Œì§€ì˜ ìµœë‹¨ê±°ë¦¬ ê°’ë³´ë‹¤ ìƒˆë¡œ ê³„ì‚°ë˜ëŠ” ìµœë‹¨ê±°ë¦¬ê°€ ë” ì§§ì„ ê²½ìš°
+		            if(!sptSet[v] && dist[u] != Large && graph[u][v]!=0){
 		                int date_1 =date + (int)(dist[u]/1440);
 		                if(date_1 > 31){
-		                	continue;
+		                	break;
 		                }
 		                int dep = timetable[date_1][u][v][0]*60 + timetable[date_1][u][v][1];
 		                int total = 0;
-		                if(dep > dist[u]%1440){
+		                if(dep > (dist[u]%1440)){
 		                    total = dep - (dist[u]%1440);
 		                }
 		                else{
@@ -152,32 +164,34 @@ public:
 		                           total = (1440 - (dist[u]%1440)) + timetable[date_1+1][u][v][0]*60+timetable[date_1+1][u][v][1];
 		                       }
 		                }
-		
-		                if (!sptSet[v] && dist[v] > dist[u] + graph[u][v] + total)
+
+		                if ( dist[v] > dist[u] + graph[u][v] + total)
 		                {
-		                    // ÃÖ´Ü°Å¸®¸¦ °»½ÅÇØÁØ´Ù.
+		                    // ìµœë‹¨ê±°ë¦¬ë¥¼ ê°±ì‹ í•´ì¤€ë‹¤.
 		                    dist[v] = dist[u] + graph[u][v]+total;
 		                    shor_path[v] = u;
 		                }
 		            }
-		
+
 		        }
 	        }
-	
-	
-	        // ÀÌÁ¦ ÀÌ ³ëµå(u)´Â Á¢±ÙÇÒ ÀÏÀÌ ¾ø´Ù. ÇÃ·¡±×¸¦ 1·Î ¼³Á¤.
+
+
+	        // ì´ì œ ì´ ë…¸ë“œ(u)ëŠ” ì ‘ê·¼í•  ì¼ì´ ì—†ë‹¤. í”Œë˜ê·¸ë¥¼ 1ë¡œ ì„¤ì •.
 	        sptSet[u] = 1;
-	
-	        // ÇöÀç±îÁöÀÇ ÃÖ´Ü °Å¸®¸¦ Ãâ·ÂÇØÁØ´Ù.
+
+	        // í˜„ì¬ê¹Œì§€ì˜ ìµœë‹¨ ê±°ë¦¬ë¥¼ ì¶œë ¥í•´ì¤€ë‹¤.
 	        //printSolution(dist, V);
+	    }
+	    for(int i = 0; i<V; i++){
 	    }
 	}
 	int ShortestPath(int graph[V][V], int from, int to,int date){
-	    for(int i = 0; i< V;i++,dist[i-1] = INT_MAX, shor_path[i-1]=-1);
+	    for(int i = 0; i< V;i++,dist[i-1] = Large, shor_path[i-1]=-1);
 	    dist[from] = 0;
 	    dijkstra(graph,from,date);
-	
-	    if(dist[to] !=INT_MAX)
+
+	    if(dist[to] !=Large)
 	    {
 	        SearchPath(from, to);
 	        return 1;
