@@ -18,7 +18,7 @@ void print_timetable(void);     // ./timetable.cpp
 void cancel_reservation(void);  // ./cancel.cpp
 void check_reservation(void);   // ./check.cpp
 void print_rbtinfo(void);     // ./rbtinfo.cpp
-
+void seat_information(void);  // ./seat.cpp
 /* default data structure,  RBT T */
 Tree T;
 
@@ -127,7 +127,8 @@ int main(int argc, const char **argv)
         printf("* 3. Cancel reservation      *\n");
         printf("* 4. Check reservation info  *\n");
         printf("* 5. Print RBT info          *\n");
-        printf("* 6. Exit                    *\n");
+        printf("* 6. Airplane Capacity info  *\n");
+        printf("* 7. Exit                    *\n");
         printf("******************************\n");
         printf("> ");
         scanf("%d", &select);
@@ -155,6 +156,10 @@ int main(int argc, const char **argv)
                 print_rbtinfo();
                 break;
             case 6:
+				CLS;
+				seat_information();
+				break;
+			case 7:
                 return 0;
                 break;
             default:

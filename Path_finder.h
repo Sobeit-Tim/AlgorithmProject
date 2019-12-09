@@ -4,6 +4,7 @@
 #include "Path.h"
 #define Large 100000
 #define V 26
+#define SEAT 20
 
 extern int map[26][26];
 extern int timetable[32][26][26][23];
@@ -66,7 +67,7 @@ public:
 			}
 			for(int i = 1; i<j; i++){
 				p->flight_date[i] = flight_date[i];
-				for(int k = 1; k<=20; k++){
+				for(int k = 1; k<=SEAT; k++){
 					if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){
 						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1;
 						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;
@@ -178,7 +179,7 @@ public:
 		                           set_date = date_1+1;
 							   }
 		                }
-						if (timetable[set_date][u][v][2] >= 20)
+						if (timetable[set_date][u][v][2] >= SEAT)
 							continue;
 		                if ( dist[v] > dist[u] + graph[u][v] + total)
 		                {
