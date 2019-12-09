@@ -5,41 +5,45 @@
 #define Large 100000
 #define V 26
 
+extern int map[26][26];
+extern int timetable[32][26][26][23];
 
 class Path_finder{
 public:
 
-	int map[26][26];
-	int timetable[32][26][26][2];
 	int flight_path[100];
+	int flight_date[100];
 	int dep_time[3];
 	int arr_time[3];
+
 	int shor_path[100];
+	int sp_date[100];
 	int dist[27];
 	int sptSet[V]; // 방문 했는지 체크 하는 int형 배열
 
-	Path_finder(int t[][26][26][2], int m[][26])
-    {
-        for(int i = 1; i<= 31; i++){
-            for(int j = 0; j< 26; j++){
-                for(int k = 0; k< 26; k++){
-                    timetable[i][j][k][0] = t[i][j][k][0];
-                    timetable[i][j][k][1] = t[i][j][k][1];
-                }
-            }
-        }
-        for(int j = 0; j< 26; j++){
-                for(int k = 0; k< 26; k++){
-                    map[j][k] = m[j][k];
-                }
-            }
-    }
+	void printPath(Path* p){	 
+		printf("flight Path[dep date, seat] : ");
+		int j;
+		for(j =0; p->flight_path[j]!=-1; j++);
+		
+		for(int i = 0; i<j; i++){
+			printf("%c", p->flight_path[i]+'A');
+			if(i != j-1)
+				printf("[date:%d|seat:%d]->",p->flight_date[i+1],p->flight_seat[i+1]);
+		}
+		printf("\n");
+		printf("flight_time : %d minutes\n",p->flight_time);
+		printf("departure time: %dd, %dh%dm\n", p->dep_time[0],p->dep_time[1],p->dep_time[2]);
+	 	printf("arrival time : %dd, %dh%dm\n", p->arr_time[0],p->arr_time[1],p->arr_time[2]);
+	}
 
 	Path* get_path(int date, int src, int dst){
 	    memset(flight_path,-1,sizeof(flight_path));
+		memset(flight_date,-1,sizeof(flight_date));
 	    memset(dep_time,0,sizeof(dep_time));
 	    memset(arr_time,0,sizeof(arr_time));
 	    memset(shor_path,-1,sizeof(shor_path));
+		memset(sp_date,-1,sizeof(sp_date));
 
 	    Path *p = new Path;
 		memset(p->flight_path,-1,sizeof(p->flight_path));
@@ -56,23 +60,27 @@ public:
 		    p->arr_time[1] = (int)((dist[dst]%1440)/60);
 		    p->arr_time[2] = dist[dst]%60;
 			p->flight_time = 0;
-			printf("flight Path : ");
-		    int j;
-			for(j =0; flight_path[j]!=-1; j++)
+			int j;
+			for(j =0; flight_path[j]!=-1; j++){
 		        p->flight_path[j] = flight_path[j];
-		   	for(int i = 0; i<j; i++){
-				printf("%c", p->flight_path[i]+'A');
-				if(i != j-1)
-					printf("->");
 			}
-			printf("\n");
+			for(int i = 1; i<j; i++){
+				p->flight_date[i] = flight_date[i];
+				for(int k = 1; k<=20; k++){
+					if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){
+						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1;
+						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;
+						p->flight_seat[i] = k;
+						break;
+					}
+				}
+
+			}
 		    for(int i =1; flight_path[i]!=-1;i++){
 		        p->flight_time+=map[flight_path[i]][flight_path[i-1]];
 		    }
-		    printf("flight_time : %d\n",p->flight_time);
-		    printf("departure time: %dd, %dh%dm\n", p->dep_time[0],p->dep_time[1],p->dep_time[2]);
-		    printf("arrival time : %dd, %dh%dm\n", p->arr_time[0],p->arr_time[1],p->arr_time[2]);
-		    if(p->arr_time[0] < p->dep_time[0])
+		    printPath(p);
+			if(p->arr_time[0] < p->dep_time[0])
                 printf("???");
             else{
                 if( (p->arr_time[0] == p->dep_time[0])&& (p->arr_time[1] < p->dep_time[1]))
@@ -82,7 +90,7 @@ public:
                     if((p->arr_time[0] == p->dep_time[0]) && (p->arr_time[1] == p->dep_time[1]) &&(p->arr_time[2] < p->dep_time[2]))
                         printf("?????");
                 }
-                }
+            }
 
 	    }else{
 			printf("There is no path between %c and %c\n", src+'A', dst+'A');
@@ -118,6 +126,8 @@ public:
 	        if(vertex == from) break;
 	    }
 	    while(--Top >=0){
+			if(stack[Top] != from)
+				flight_date[i] = sp_date[stack[Top]];
 	        flight_path[i++] = stack[Top];
 	    }
 	}
@@ -153,7 +163,10 @@ public:
 		                }
 		                int dep = timetable[date_1][u][v][0]*60 + timetable[date_1][u][v][1];
 		                int total = 0;
-		                if(dep > (dist[u]%1440)){
+
+						int set_date = date_1;
+		                
+						if(dep > (dist[u]%1440)){
 		                    total = dep - (dist[u]%1440);
 		                }
 		                else{
@@ -162,14 +175,17 @@ public:
 		                    else
 		                       {
 		                           total = (1440 - (dist[u]%1440)) + timetable[date_1+1][u][v][0]*60+timetable[date_1+1][u][v][1];
-		                       }
+		                           set_date = date_1+1;
+							   }
 		                }
-
+						if (timetable[set_date][u][v][2] >= 20)
+							continue;
 		                if ( dist[v] > dist[u] + graph[u][v] + total)
 		                {
 		                    // 최단거리를 갱신해준다.
 		                    dist[v] = dist[u] + graph[u][v]+total;
 		                    shor_path[v] = u;
+							sp_date[v] = set_date;
 		                }
 		            }
 

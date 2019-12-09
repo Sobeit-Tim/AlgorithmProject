@@ -26,8 +26,8 @@ Tree T;
 Path_finder* P;
 
 int map[26][26];  // to check if the path is already generated
-int timetable[32][26][26][2];   // [date][src][dst][0:hour 1:minute]
-
+int timetable[32][26][26][23];   // [date][src][dst][0:hour 1:minute]
+								// [2: # of used seat, 3~22 - seat info ]
 int main(int argc, const char **argv)
 {
 
@@ -37,6 +37,7 @@ int main(int argc, const char **argv)
     srand(time(NULL));
 
     memset(map, 0, sizeof(map));
+	memset(timetable, 0, sizeof(timetable));
 
     int X_cor[26];
     int Y_cor[26];
@@ -81,7 +82,8 @@ int main(int argc, const char **argv)
     }
 	
 	/* path finder object p */
-    P = new Path_finder(timetable, map);
+    P = new Path_finder();
+	//P = new Path_finder(timetable, map);
     
     char rand_name[5];
     rand_name[4] = '\0';
