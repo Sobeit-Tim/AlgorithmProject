@@ -17,6 +17,11 @@ void print_timetable(void)
 
     printf("Enter date to check the time table (1 ~ 31): ");
     scanf("%d", &date);
+    if (date < 1 || date > 31) {
+        printf("Invalid input: The date should be in range from 1 to 31\n");
+        printf("Return to main screen...\n");
+        return;
+    }
 
     for (int i = 0; i < 26; i++) {
         for (int j = 0; j < 26; j++) {
