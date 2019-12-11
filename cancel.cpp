@@ -8,17 +8,11 @@ extern int timetable[32][26][26][23];
 
 void cancel_reservation_print_menu(char* name, int date, char src, char dst)
 {
-    printf("******************************\n");
-    printf("*     Cancel reservation     *\n");
-    printf("*                            *\n");
-    printf("* Name: %s", name);
-    for (int i = 0; i < 21 - strlen(name); i++)
-        printf(" ");
-    printf("*\n");
-    printf("* Dep. date: %2d              *\n", date);
-    printf("* From: %c                    *\n", src);
-    printf("* To: %c                      *\n", dst);
-    printf("******************************\n");
+    printf("===== Cancel reservation =====\n");
+    printf("Name: %s\n", name);
+    printf("Dep. date: %2d\n", date);
+    printf("From: %c\n", src);
+    printf("To: %c\n", dst);
 }
 
 void cancel_reservation()
