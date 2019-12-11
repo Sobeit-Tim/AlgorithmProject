@@ -4,8 +4,8 @@
 typedef struct Path_info{
     int flight_time;
     int flight_path[100];
-	int flight_date[100];
-	int flight_seat[100];
+    int flight_date[100];
+    int flight_seat[100];
     int dep_time[3];
     int arr_time[3];
     int source;

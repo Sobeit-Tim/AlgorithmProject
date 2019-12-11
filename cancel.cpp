@@ -29,23 +29,23 @@ void cancel_reservation()
         printf("Cannot find reservation for given reservation id (%d)\n", r_id);
         return;
     } else {
-		Path* p = customer->path;
+        Path* p = customer->path;
         cancel_reservation_print_menu(customer->name, customer->path->dep_time[0], \
                 customer->path->source + 'A', customer->path->dest + 'A');
-        P->printPath(p);
-		char sel;
+        P->printPath(p);		
+        char sel;
         printf("Check your reservation info.\n");
         printf("Cancel this reservation? (y/n) ");
         scanf("%c", &sel);
         getchar();
 
         if (sel == 'y') {
-			for(int i = 1; i<100; i++){
-				if(p->flight_path[i] == -1)
-					break;
-				timetable[p->flight_date[i]][p->flight_path[i-1]][p->flight_path[i]][2]--;
-				timetable[p->flight_date[i]][p->flight_path[i-1]][p->flight_path[i]][2+p->flight_seat[i]] = 0;
-			}
+            for(int i = 1; i<100; i++){
+                if(p->flight_path[i] == -1)
+                    break;
+                timetable[p->flight_date[i]][p->flight_path[i-1]][p->flight_path[i]][2]--;
+                timetable[p->flight_date[i]][p->flight_path[i-1]][p->flight_path[i]][2+p->flight_seat[i]] = 0;
+            }
 
             T.remove(r_id);
             printf("Successfully cancelled reservation (Reservation ID: %d)\n", r_id);

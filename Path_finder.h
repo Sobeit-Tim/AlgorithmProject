@@ -7,23 +7,21 @@
 #define V 26
 #define SEAT 20
 
-//extern int map[26][26];
 extern List map[26];
 extern int timetable[32][26][26][23];
 
 class Path_finder{
 public:
-
-	int flight_path[100];
-	int flight_date[100];
+	int flight_path[100]; // whole path
+	int flight_date[100]; // each date
 	int dep_time[3];
 	int arr_time[3];
-
-	int shor_path[100];
-	int sp_date[100];
+	int shor_path[100];   // to get shortest path
+	int sp_date[100];     // each date
 	int dist[27];
 	int sptSet[V]; // 방문 했는지 체크 하는 int형 배열
 
+    /* print the path information */
 	void printPath(Path* p){	 
 		printf("flight Path[dep date, seat] : ");
 		int j;
@@ -42,14 +40,14 @@ public:
 
 	Path* get_path(int date, int src, int dst){
 	    memset(flight_path,-1,sizeof(flight_path));
-		memset(flight_date,-1,sizeof(flight_date));
+	    memset(flight_date,-1,sizeof(flight_date));
 	    memset(dep_time,0,sizeof(dep_time));
 	    memset(arr_time,0,sizeof(arr_time));
 	    memset(shor_path,-1,sizeof(shor_path));
-		memset(sp_date,-1,sizeof(sp_date));
+	    memset(sp_date,-1,sizeof(sp_date));
 
 	    Path *p = new Path;
-		memset(p->flight_path,-1,sizeof(p->flight_path));
+	    memset(p->flight_path,-1,sizeof(p->flight_path));
 	    p->flight_time = -1;
 	    p->source = src;
 	    p->dest = dst;
@@ -62,46 +60,35 @@ public:
 		    p->arr_time[0] = date + (int)dist[dst]/1440;
 		    p->arr_time[1] = (int)((dist[dst]%1440)/60);
 		    p->arr_time[2] = dist[dst]%60;
-			p->flight_time = 0;
-			int j;
-			for(j =0; flight_path[j]!=-1; j++){
-		        p->flight_path[j] = flight_path[j];
-			}
-			for(int i = 1; i<j; i++){
-				p->flight_date[i] = flight_date[i];
-				for(int k = 1; k<=SEAT; k++){
-					if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){
-						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1;
-						timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;
-						p->flight_seat[i] = k;
-						break;
-					}
-				}
-
+		    p->flight_time = 0;
+		    int j;
+		    /* copy */
+		    for(j =0; flight_path[j]!=-1; j++){
+                p->flight_path[j] = flight_path[j];
+		    }
+		    /* seat allocation */
+		    for(int i = 1; i<j; i++){
+			    p->flight_date[i] = flight_date[i];
+			    for(int k = 1; k<=SEAT; k++){
+			        if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){ // find a available seat
+			            timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1; // check
+			            timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;     // # of available seats 
+			            p->flight_seat[i] = k; // reservation seat
+		                break;
+			        }
+			    }
 			}
 		    for(int i =1; flight_path[i]!=-1;i++){
-		        //p->flight_time+=map[flight_path[i]][flight_path[i-1]];
 		        p->flight_time+=map[flight_path[i]].find(flight_path[i-1]);
 			}
 		    printPath(p);
-			if(p->arr_time[0] < p->dep_time[0])
-                printf("???");
-            else{
-                if( (p->arr_time[0] == p->dep_time[0])&& (p->arr_time[1] < p->dep_time[1]))
-                    printf("????");
-                else
-                {
-                    if((p->arr_time[0] == p->dep_time[0]) && (p->arr_time[1] == p->dep_time[1]) &&(p->arr_time[2] < p->dep_time[2]))
-                        printf("?????");
-                }
-            }
-
 	    }else{
-			printf("There is no path between %c and %c\n", src+'A', dst+'A');
-		}
+		    printf("There is no path between %c and %c\n", src+'A', dst+'A');
+        }
 	    return p;
-	};
+    };
 
+	/* pick the minimum distance index */
 	int minDistance(int dist[V], int sptSet[V])
 	{
 	    int min = Large;
@@ -118,6 +105,8 @@ public:
 
 	    return min_index;
 	}
+
+	/* after dijkstra, get the whole path( shortest path ) */
 	void SearchPath(int from,int to){
 	    int vertex = to;
 	    int stack[V];
@@ -130,16 +119,15 @@ public:
 	        if(vertex == from) break;
 	    }
 	    while(--Top >=0){
-			if(stack[Top] != from)
-				flight_date[i] = sp_date[stack[Top]];
+            if(stack[Top] != from)
+                flight_date[i] = sp_date[stack[Top]];
 	        flight_path[i++] = stack[Top];
 	    }
 	}
 
+    /* dijkstra algorithm, from src */
 	void dijkstra(int src, int date)
 	{
-
-
 	    for (int i = 0; i<V; i++)
 	        dist[i] = Large, sptSet[i] = 0;
 
@@ -163,49 +151,49 @@ public:
 		            if(!sptSet[v] && dist[u] != Large && map[u].find(v) != -1){
 		                int date_1 =date + (int)(dist[u]/1440);
 		                if(date_1 > 31){
-		                	break;
+		                    break;
 		                }
 		                int dep = timetable[date_1][u][v][0]*60 + timetable[date_1][u][v][1];
 		                int total = 0;
 
-						int set_date = date_1;
+					    int set_date = date_1;
 		                
-						if(dep > (dist[u]%1440)){
+					    if(dep > (dist[u]%1440)){
 		                    total = dep - (dist[u]%1440);
 		                }
 		                else{
 		                    if(date_1 == 31)
 		                        continue;
 		                    else
-		                       {
-		                           total = (1440 - (dist[u]%1440)) + timetable[date_1+1][u][v][0]*60+timetable[date_1+1][u][v][1];
-		                           set_date = date_1+1;
-							   }
+                            {
+		                        total = (1440 - (dist[u]%1440)) + timetable[date_1+1][u][v][0]*60+timetable[date_1+1][u][v][1];
+		                        set_date = date_1+1;
+                            }
 		                }
+						// if there is no available seat, -> ignore the path
 						if (timetable[set_date][u][v][2] >= SEAT)
-							continue;
-		                if ( dist[v] > dist[u] + map[u].find(v) + total)
+		                    continue;
+		                
+						if ( dist[v] > dist[u] + map[u].find(v) + total)
 		                {
 		                    // 최단거리를 갱신해준다.
 		                    dist[v] = dist[u] + map[u].find(v) +total;
 		                    shor_path[v] = u;
-							sp_date[v] = set_date;
+						    sp_date[v] = set_date;
 		                }
 		            }
 
 		        }
 	        }
 
-
 	        // 이제 이 노드(u)는 접근할 일이 없다. 플래그를 1로 설정.
 	        sptSet[u] = 1;
 
-	        // 현재까지의 최단 거리를 출력해준다.
-	        //printSolution(dist, V);
 	    }
 	    for(int i = 0; i<V; i++){
 	    }
 	}
+	/* shortest path를 구했으면 1을 반환, 아니면 0을 반환 */
 	int ShortestPath(int from, int to,int date){
 	    for(int i = 0; i< V;i++,dist[i-1] = Large, shor_path[i-1]=-1);
 	    dist[from] = 0;

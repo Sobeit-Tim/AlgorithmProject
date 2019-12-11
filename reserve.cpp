@@ -76,12 +76,12 @@ void make_reservation(void)
     make_reservation_print_menu(name, date, src, dst);
 
     Path* newpath = P->get_path(date, src - 'A', dst - 'A');
-   	if(newpath->flight_time == -1){
+	if(newpath->flight_time == -1){
         printf("Cannot find path from %c to %c\n", src, dst);
-		delete(newpath);
-	}else{
-		int r_id = T.insert(name, newpath);
-    	printf("Your reservation id is %d\n", r_id);
+        delete(newpath);
+    }else{
+        int r_id = T.insert(name, newpath);
+        printf("Your reservation id is %d\n", r_id);
 	}
     return;
 }
