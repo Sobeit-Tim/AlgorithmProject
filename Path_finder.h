@@ -12,99 +12,97 @@ extern int timetable[32][26][26][23];
 
 class Path_finder{
 public:
-	int flight_path[100]; // whole path
-	int flight_date[100]; // each date
-	int dep_time[3];
-	int arr_time[3];
-	int shor_path[100];   // to get shortest path
-	int sp_date[100];     // each date
-	int dist[27];
-	int sptSet[V]; // 방문 했는지 체크 하는 int형 배열
+    int flight_path[100]; // whole path
+    int flight_date[100]; // each date
+    int dep_time[3];
+    int arr_time[3];
+    int shor_path[100];   // to get shortest path
+    int sp_date[100];     // each date
+    int dist[27];
+    int sptSet[V]; // 방문 했는지 체크 하는 int형 배열
 
     /* print the path information */
-	void printPath(Path* p){	 
-		printf("flight Path[dep date, seat] : ");
-		int j;
-		for(j =0; p->flight_path[j]!=-1; j++);
-		
-		for(int i = 0; i<j; i++){
-			printf("%c", p->flight_path[i]+'A');
-			if(i != j-1)
-				printf("[date:%d|seat:%d]->",p->flight_date[i+1],p->flight_seat[i+1]);
-		}
-		printf("\n");
-		printf("flight_time : %d minutes\n",p->flight_time);
-		printf("departure time: %dd, %dh%dm\n", p->dep_time[0],p->dep_time[1],p->dep_time[2]);
-	 	printf("arrival time : %dd, %dh%dm\n", p->arr_time[0],p->arr_time[1],p->arr_time[2]);
-	}
+    void printPath(Path* p){	 
+        printf("flight Path[dep date, seat] : ");
+	int j;
+	for(j =0; p->flight_path[j]!=-1; j++);
+	for(int i = 0; i<j; i++){
+	    printf("%c", p->flight_path[i]+'A');
+	    if(i != j-1)
+		printf("[date:%d|seat:%d]->",p->flight_date[i+1],p->flight_seat[i+1]);
+            }
+	    printf("\n");
+	    printf("flight_time : %d minutes\n",p->flight_time);
+	    printf("departure time: %dd, %dh%dm\n", p->dep_time[0],p->dep_time[1],p->dep_time[2]);
+	    printf("arrival time : %dd, %dh%dm\n", p->arr_time[0],p->arr_time[1],p->arr_time[2]);
+    }
+    Path* get_path(int date, int src, int dst){
+        memset(flight_path,-1,sizeof(flight_path));
+	memset(flight_date,-1,sizeof(flight_date));
+	memset(dep_time,0,sizeof(dep_time));
+	memset(arr_time,0,sizeof(arr_time));
+	memset(shor_path,-1,sizeof(shor_path));
+	memset(sp_date,-1,sizeof(sp_date));
 
-	Path* get_path(int date, int src, int dst){
-	    memset(flight_path,-1,sizeof(flight_path));
-	    memset(flight_date,-1,sizeof(flight_date));
-	    memset(dep_time,0,sizeof(dep_time));
-	    memset(arr_time,0,sizeof(arr_time));
-	    memset(shor_path,-1,sizeof(shor_path));
-	    memset(sp_date,-1,sizeof(sp_date));
+	Path *p = new Path;
+	memset(p->flight_path,-1,sizeof(p->flight_path));
+	p->flight_time = -1;
+	p->source = src;
+	p->dest = dst;
 
-	    Path *p = new Path;
-	    memset(p->flight_path,-1,sizeof(p->flight_path));
-	    p->flight_time = -1;
-	    p->source = src;
-	    p->dest = dst;
-
-	    int path_ok = ShortestPath(src, dst, date);
-	    if(/*((date+(int)dist[dst]/1440) <32 )&&*/path_ok == 1){
-		    p->dep_time[0] = date;
-		    p->dep_time[1] = timetable[date][src][flight_path[1]][0];
-		    p->dep_time[2] = timetable[date][src][flight_path[1]][1];
-		    p->arr_time[0] = date + (int)dist[dst]/1440;
-		    p->arr_time[1] = (int)((dist[dst]%1440)/60);
-		    p->arr_time[2] = dist[dst]%60;
-		    p->flight_time = 0;
-		    int j;
-		    /* copy */
-		    for(j =0; flight_path[j]!=-1; j++){
-                p->flight_path[j] = flight_path[j];
+	int path_ok = ShortestPath(src, dst, date);
+	if(/*((date+(int)dist[dst]/1440) <32 )&&*/path_ok == 1){
+	    p->dep_time[0] = date;
+	    p->dep_time[1] = timetable[date][src][flight_path[1]][0];
+	    p->dep_time[2] = timetable[date][src][flight_path[1]][1];
+	    p->arr_time[0] = date + (int)dist[dst]/1440;
+	    p->arr_time[1] = (int)((dist[dst]%1440)/60);
+	    p->arr_time[2] = dist[dst]%60;
+	    p->flight_time = 0;
+	    int j;
+	    /* copy */
+	    for(j =0; flight_path[j]!=-1; j++){
+	        p->flight_path[j] = flight_path[j];
+	    }
+	    /* seat allocation */
+	    for(int i = 1; i<j; i++){
+	        p->flight_date[i] = flight_date[i];
+		for(int k = 1; k<=SEAT; k++){
+		    if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){ // find a available seat
+		        timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1; // check
+		        timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;     // # of available seats 
+		        p->flight_seat[i] = k; // reservation seat
+		        break;
 		    }
-		    /* seat allocation */
-		    for(int i = 1; i<j; i++){
-			    p->flight_date[i] = flight_date[i];
-			    for(int k = 1; k<=SEAT; k++){
-			        if(timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] == 0){ // find a available seat
-			            timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2+k] = 1; // check
-			            timetable[flight_date[i]][flight_path[i-1]][flight_path[i]][2]++;     // # of available seats 
-			            p->flight_seat[i] = k; // reservation seat
-		                break;
-			        }
-			    }
-			}
-		    for(int i =1; flight_path[i]!=-1;i++){
-		        p->flight_time+=map[flight_path[i]].find(flight_path[i-1]);
-			}
-		    printPath(p);
-	    }else{
-		    printf("There is no path between %c and %c\n", src+'A', dst+'A');
-        }
-	    return p;
+		}
+	    }
+	    for(int i =1; flight_path[i]!=-1;i++){
+		p->flight_time+=map[flight_path[i]].find(flight_path[i-1]);
+	    }
+	    printPath(p);
+	}else{
+	    printf("There is no path between %c and %c\n", src+'A', dst+'A');
+	}
+	return p;
     };
 
 	/* pick the minimum distance index */
-	int minDistance(int dist[V], int sptSet[V])
+    int minDistance(int dist[V], int sptSet[V])
+    {
+        int min = Large;
+        int min_index=-1;
+
+	for (int v = 0; v < V; v++)
 	{
-	    int min = Large;
-	    int min_index=-1;
-
-	    for (int v = 0; v < V; v++)
+	    if (!sptSet[v] && min > dist[v])
 	    {
-	        if (!sptSet[v] && min > dist[v])
-	        {
-	            min_index = v;
-	            min = dist[v];
-	        }
+	        min_index = v;
+	        min = dist[v];
 	    }
-
-	    return min_index;
 	}
+
+	return min_index;
+    }
 
 	/* after dijkstra, get the whole path( shortest path ) */
 	void SearchPath(int from,int to){
