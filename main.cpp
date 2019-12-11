@@ -25,8 +25,7 @@ Tree T;
 /* default data structure, Path_finder* P */
 Path_finder* P;
 
-List map[26]; 
-//int map[26][26];  // to check if the path is already generated
+List map[26]; // to check if the path is already generated
 int timetable[32][26][26][23];   // [date][src][dst][0:hour 1:minute]
 								// [2: # of used seat, 3~22 - seat info ]
 int main(int argc, const char **argv)
@@ -37,55 +36,45 @@ int main(int argc, const char **argv)
 
     srand(time(NULL));
 
-    //memset(map, 0, sizeof(map));
-	memset(timetable, 0, sizeof(timetable));
+    memset(timetable, 0, sizeof(timetable));
 
     int X_cor[26];
     int Y_cor[26];
-	/* set cities' coordinate */
+    /* set cities' coordinate */
     for(int i =0; i<26;i++){
         X_cor[i] = rand()%6001-3000;
         Y_cor[i] = rand()%6001-3000;
     }
 
-	/* randomly generate 100 distinct direct paths 
-	*  map include the flight time information between two cities.
-	*/
+    /* randomly generate 100 distinct direct paths 
+    *  map include the flight time information between two cities.
+    */
     for (int i = 0; i < 100; i++) {
         int src = rand() % 26;
         int dst = rand() % 26;
 		
-	    if(src != dst && map[src].find(dst) == -1 && map[dst].find(src) == -1){
-        //if (src != dst && !map[src][dst] && !map[dst][src]) {
+        if(src != dst && map[src].find(dst) == -1 && map[dst].find(src) == -1){
             /* get distance between two cities */
-			int distance = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
-		    
-		    /* get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )*/
-		    distance = (int)(distance*3/25);
+    	    int distance = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
+            /* get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )*/
+            distance = (int)(distance*3/25);
 
-		    /* to avoid flight time 0 minutes */
-		    if(distance == 0)
-			    distance++;
-			map[src].push(dst, distance);
-			map[dst].push(src, distance);
-			/*map[src][dst] = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
-            map[dst][src] = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
-           	
-		     get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )
-		    map[src][dst] = (int)(map[src][dst]*3/25);
-            map[dst][src] = (int)(map[dst][src]*3/25);
-        	*/
-		} else {
+            /* to avoid flight time 0 minutes */
+            if(distance == 0)
+                distance++;
+            map[src].push(dst, distance);
+            map[dst].push(src, distance);
+		
+        } else {
             i--;
         }
     }
 	
-	/* randomly generate departure time table */
+    /* randomly generate departure time table */
     for (int date = 1; date <= 31; date++) {
         for (int src = 0; src < 26; src++) {
             for (int dst = 0; dst < 26; dst++) {
                 if(map[src].find(dst) != -1){
-				//if (map[src][dst] != 0) {
                     int hour = rand() % 24;
                     int minute = rand() % 60;
                     timetable[date][src][dst][0] = hour;
@@ -96,10 +85,9 @@ int main(int argc, const char **argv)
         }
     }
 	
-	/* path finder object p */
+    /* path finder object p */
     P = new Path_finder();
-	//P = new Path_finder(timetable, map);
-    
+	
     char rand_name[5];
     rand_name[4] = '\0';
 
@@ -108,15 +96,14 @@ int main(int argc, const char **argv)
         int src = rand() % 26;
         int dst = rand() % 26;
 
-        //if (map[src][dst] == 0) {
         if(map[src].find(dst) == -1){
-			i--;
+            i--;
             continue;
         } else {
-        	/* make random name [ length = 4 ] */
-        	rand_name[0] = rand() % 26 + 65;
-        	for(int j = 1; j<4; j++)
-        		rand_name[j] = rand() % 26 + 97;
+            /* make random name [ length = 4 ] */
+            rand_name[0] = rand() % 26 + 65;
+            for(int j = 1; j<4; j++)
+                rand_name[j] = rand() % 26 + 97;
         	
             printf("name: %s, date: %d, src: %c, dst: %c\n", rand_name, date, src+'A', dst+'A');
             
@@ -125,11 +112,11 @@ int main(int argc, const char **argv)
             if(newpath->flight_time!=-1){
                 int r_id = T.insert(rand_name, newpath);
             	printf("reservation id: %d\n\n", r_id);
-			}else{
-				printf("fail\n\n");
-            	delete(newpath);
-				i--;
-			}
+            }else{
+                printf("fail\n\n");
+                delete(newpath);
+                i--;
+            }
         }
     }
 
@@ -172,10 +159,10 @@ int main(int argc, const char **argv)
                 print_rbtinfo();
                 break;
             case 6:
-				CLS;
-				seat_information();
-				break;
-			case 7:
+                CLS;
+                seat_information();
+                break;
+            case 7:
                 return 0;
                 break;
             default:
