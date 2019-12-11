@@ -25,7 +25,8 @@ Tree T;
 /* default data structure, Path_finder* P */
 Path_finder* P;
 
-int map[26][26];  // to check if the path is already generated
+List map[26]; 
+//int map[26][26];  // to check if the path is already generated
 int timetable[32][26][26][23];   // [date][src][dst][0:hour 1:minute]
 								// [2: # of used seat, 3~22 - seat info ]
 int main(int argc, const char **argv)
@@ -36,7 +37,7 @@ int main(int argc, const char **argv)
 
     srand(time(NULL));
 
-    memset(map, 0, sizeof(map));
+    //memset(map, 0, sizeof(map));
 	memset(timetable, 0, sizeof(timetable));
 
     int X_cor[26];
@@ -53,15 +54,28 @@ int main(int argc, const char **argv)
     for (int i = 0; i < 100; i++) {
         int src = rand() % 26;
         int dst = rand() % 26;
+		
+	    if(src != dst && map[src].find(dst) == -1 && map[dst].find(src) == -1){
+        //if (src != dst && !map[src][dst] && !map[dst][src]) {
+            /* get distance between two cities */
+			int distance = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
+		    
+		    /* get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )*/
+		    distance = (int)(distance*3/25);
 
-        if (src != dst && !map[src][dst] && !map[dst][src]) {
-        	/* get distance between two cities */
-            map[src][dst] = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
+		    /* to avoid flight time 0 minutes */
+		    if(distance == 0)
+			    distance++;
+			map[src].push(dst, distance);
+			map[dst].push(src, distance);
+			/*map[src][dst] = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
             map[dst][src] = (int)sqrt((X_cor[dst]-X_cor[src])*(X_cor[dst]-X_cor[src])+(Y_cor[dst]-Y_cor[src])*(Y_cor[dst]-Y_cor[src]));
-            /* get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )*/
-			map[src][dst] = (int)(map[src][dst]*3/25);
+           	
+		     get the flight time - unit : minutes [ distance / (500km/hour = (25/3)km/minutes )
+		    map[src][dst] = (int)(map[src][dst]*3/25);
             map[dst][src] = (int)(map[dst][src]*3/25);
-        } else {
+        	*/
+		} else {
             i--;
         }
     }
@@ -70,7 +84,8 @@ int main(int argc, const char **argv)
     for (int date = 1; date <= 31; date++) {
         for (int src = 0; src < 26; src++) {
             for (int dst = 0; dst < 26; dst++) {
-                if (map[src][dst] != 0) {
+                if(map[src].find(dst) != -1){
+				//if (map[src][dst] != 0) {
                     int hour = rand() % 24;
                     int minute = rand() % 60;
                     timetable[date][src][dst][0] = hour;
@@ -93,8 +108,9 @@ int main(int argc, const char **argv)
         int src = rand() % 26;
         int dst = rand() % 26;
 
-        if (map[src][dst] == 0) {
-            i--;
+        //if (map[src][dst] == 0) {
+        if(map[src].find(dst) == -1){
+			i--;
             continue;
         } else {
         	/* make random name [ length = 4 ] */

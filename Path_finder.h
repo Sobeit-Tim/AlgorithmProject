@@ -2,11 +2,13 @@
 #define PATH_FINDER_H_INCLUDED
 #include <math.h>
 #include "Path.h"
+#include "list.h"
 #define Large 100000
 #define V 26
 #define SEAT 20
 
-extern int map[26][26];
+//extern int map[26][26];
+extern List map[26];
 extern int timetable[32][26][26][23];
 
 class Path_finder{
@@ -52,7 +54,7 @@ public:
 	    p->source = src;
 	    p->dest = dst;
 
-	    int path_ok = ShortestPath(map, src, dst, date);
+	    int path_ok = ShortestPath(src, dst, date);
 	    if(/*((date+(int)dist[dst]/1440) <32 )&&*/path_ok == 1){
 		    p->dep_time[0] = date;
 		    p->dep_time[1] = timetable[date][src][flight_path[1]][0];
@@ -78,8 +80,9 @@ public:
 
 			}
 		    for(int i =1; flight_path[i]!=-1;i++){
-		        p->flight_time+=map[flight_path[i]][flight_path[i-1]];
-		    }
+		        //p->flight_time+=map[flight_path[i]][flight_path[i-1]];
+		        p->flight_time+=map[flight_path[i]].find(flight_path[i-1]);
+			}
 		    printPath(p);
 			if(p->arr_time[0] < p->dep_time[0])
                 printf("???");
@@ -133,7 +136,7 @@ public:
 	    }
 	}
 
-	void dijkstra(int graph[V][V], int src, int date)
+	void dijkstra(int src, int date)
 	{
 
 
@@ -157,7 +160,7 @@ public:
 		            // 2. u-v 간에 edge가 존재하고
 		            // 3. src부터 u까지의 경로가 존재하고
 		            // 4. 기존의 v노드까지의 최단거리 값보다 새로 계산되는 최단거리가 더 짧을 경우
-		            if(!sptSet[v] && dist[u] != Large && graph[u][v]!=0){
+		            if(!sptSet[v] && dist[u] != Large && map[u].find(v) != -1){
 		                int date_1 =date + (int)(dist[u]/1440);
 		                if(date_1 > 31){
 		                	break;
@@ -181,10 +184,10 @@ public:
 		                }
 						if (timetable[set_date][u][v][2] >= SEAT)
 							continue;
-		                if ( dist[v] > dist[u] + graph[u][v] + total)
+		                if ( dist[v] > dist[u] + map[u].find(v) + total)
 		                {
 		                    // 최단거리를 갱신해준다.
-		                    dist[v] = dist[u] + graph[u][v]+total;
+		                    dist[v] = dist[u] + map[u].find(v) +total;
 		                    shor_path[v] = u;
 							sp_date[v] = set_date;
 		                }
@@ -203,10 +206,10 @@ public:
 	    for(int i = 0; i<V; i++){
 	    }
 	}
-	int ShortestPath(int graph[V][V], int from, int to,int date){
+	int ShortestPath(int from, int to,int date){
 	    for(int i = 0; i< V;i++,dist[i-1] = Large, shor_path[i-1]=-1);
 	    dist[from] = 0;
-	    dijkstra(graph,from,date);
+	    dijkstra(from,date);
 
 	    if(dist[to] !=Large)
 	    {

@@ -1,14 +1,15 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-
+#include "list.h"
 #ifndef CLS
 //#define CLS     system("clear")
 #define CLS     printf("\n\n")
 #endif
 
 extern int timetable[32][26][26][23];
-extern int map[26][26];
+//extern int map[26][26];
+extern List map[26];
 void seat_print_menu(char* name, int date, char src, char dst)
 {
     printf("******************************\n");
@@ -46,7 +47,7 @@ void seat_information(void)
     seat_print_menu(name, date, src, dst);
 	src = src - 'A';
 	dst = dst - 'A';
-	if(date < 1 || date > 31 || map[src][dst] == 0){
+	if(date < 1 || date > 31 || map[src].find(dst) == -1){
 		printf("There is no airplane\n");
 		return;
 	}
