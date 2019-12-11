@@ -58,22 +58,22 @@ void seat_information(void)
     seat_print_menu(name, date, src, dst);
     src -= 'A';
     dst -= 'A';
-	if(map[src].find(dst) == -1){
-		printf("There is no airplane\n");
-		return;
-	}
-	printf("\nAirplane Capacity Information(O - available, X - not)\n");	
+    if(map[src].find(dst) == -1){
+        printf("There is no airplane\n");
+        return;
+    }
+    printf("\nAirplane Capacity Information(O - available, X - not)\n");	
     printf("seat(1~10):\t");
-	for(int i = 0; i<20; i++){
-		if(i == 10)
-			printf("\nseat(11~20):\t");
-		if(timetable[date][src][dst][3+i] == 0)
-			printf("O");
-		else
-			printf("X");
-		if(i == 4 || i == 14)
-			printf("   ");
-	}
-	printf("\n");
-	return;
+    for(int i = 0; i<20; i++){
+        if(i == 10)
+            printf("\nseat(11~20):\t");
+        if(timetable[date][src][dst][3+i] == 0)
+            printf("O");
+        else
+            printf("X");
+        if(i == 4 || i == 14)
+            printf("   ");
+    }
+    printf("\n");
+    return;
 }
