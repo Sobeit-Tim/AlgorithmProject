@@ -35,23 +35,38 @@ void seat_information(void)
     seat_print_menu(name, date, src, dst);
     printf("Enter departure date (1 ~ 31): ");
     scanf("%d", &date);
+    if (date < 1 || date > 31) {
+        printf("Invalid input: The date should be in range from 1 to 31\n");
+        printf("Return to main screen...\n");
+        return;
+    }
     CLS;
 
     seat_print_menu(name, date, src, dst);
     printf("Enter source city (A ~ Z): ");
     scanf("\n%c", &src);
+    if (src < 'A' || src > 'Z') {
+        printf("Invalid input: The source city should be in range from 'A' to 'Z'\n");
+        printf("Return to main screen...\n");
+        return;
+    }
     CLS;
 
     seat_print_menu(name, date, src, dst);
     printf("Enter destination city (A ~ Z): ");
     scanf("\n%c", &dst);
+    if (dst < 'A' || dst > 'Z') {
+        printf("Invalid input: The destination city should be in range from 'A' to 'Z'\n");
+        printf("Return to main screen...\n");
+        return;
+    }
     getchar();
     CLS;
 
     seat_print_menu(name, date, src, dst);
-	src = src - 'A';
-	dst = dst - 'A';
-	if(date < 1 || date > 31 || map[src].find(dst) == -1){
+    src -= 'A';
+    dst -= 'A';
+	if(map[src].find(dst) == -1){
 		printf("There is no airplane\n");
 		return;
 	}
