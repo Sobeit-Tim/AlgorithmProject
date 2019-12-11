@@ -12,13 +12,17 @@ extern int timetable[32][26][26][23];
 extern List map[26];
 void seat_print_menu(char* name, int date, char src, char dst)
 {
-    printf("******************************\n");
+/*    printf("******************************\n");
     printf("*      Seat information      *\n");
     printf("*                            *\n");
     printf("* Dep. date: %2d              *\n", date);
     printf("* From: %c                    *\n", src);
     printf("* To: %c                      *\n", dst);
-    printf("******************************\n");
+    printf("******************************\n");*/
+    printf("=====  Seat information =====\n");
+    printf("Dep. date: %2d\n", date);
+    printf("From: %c\n", src);
+    printf("To: %c\n", dst);
 }
 
 void seat_information(void)
