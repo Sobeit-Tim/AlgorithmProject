@@ -22,7 +22,7 @@ void check_reservation(void)
     scanf("%d", &r_id);
     getchar();
 
-    Node* customer = T.search(T.root, r_id, NULL);
+    Node* customer = T.search(T.root, r_id, T.NIL);
     if (customer->reserve_id != r_id) {
         printf("Cannot find reservation for given reservation id (%d)\n", r_id);
         return;
