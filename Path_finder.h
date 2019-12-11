@@ -53,7 +53,7 @@ public:
 	    p->dest = dst;
 
 	    int path_ok = ShortestPath(map, src, dst, date);
-	    if(((date+(int)dist[dst]/1440) <32 )&&path_ok == 1){
+	    if(/*((date+(int)dist[dst]/1440) <32 )&&*/path_ok == 1){
 		    p->dep_time[0] = date;
 		    p->dep_time[1] = timetable[date][src][flight_path[1]][0];
 		    p->dep_time[2] = timetable[date][src][flight_path[1]][1];
