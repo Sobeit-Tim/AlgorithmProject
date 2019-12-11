@@ -246,12 +246,14 @@ public:
 			else
 				y->parent->right = x;
 		}
-		if(y != z)
+		if(y != z){
 			z->reserve_id = y->reserve_id;
-		
+			strcpy(z->name, y->name);
+			delete(z->path);
+			z->path = y->path;
+		}
 		if(y->color == 0)
 			deleteFixup(x);
-		delete(y->path);
 		delete(y);
 		
 		return 1;
